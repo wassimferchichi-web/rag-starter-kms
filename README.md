@@ -1,4 +1,4 @@
-# RAG Starter KMS 🤖
+# RAG Starter KMS
 
 > Système de questions-réponses intelligent sur corpus interne SFM Technologies  
 > Réponses sourcées avec citations de documents — zéro hallucination
