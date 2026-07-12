@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿import fitz
+=======
+import fitz
+>>>>>>> develop
 import os
 from typing import List, Dict
 
