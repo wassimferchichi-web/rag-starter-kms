@@ -7,11 +7,11 @@ st.set_page_config(page_title="RAG Starter KMS", page_icon="🤖", layout="wide"
 st.title("🤖 RAG Starter KMS")
 st.caption("Système de questions-réponses intelligent — SFM Technologies")
 
-tab1, tab2 = st.tabs(["💬 Q&R", "📄 Recherche de document"])
+tab1, tab2 = st.tabs(["💬 Q&R", "📄 Ingérer un document"])
 
 with tab1:
     st.subheader("Posez votre question")
-    question = st.text_input("Votre question", placeholder="Ex: Quel est le délai de livraison ?")
+    question = st.text_input("Votre question", placeholder="Ex: Quel est le processus qualité ?")
     k = st.slider("Nombre de sources", 1, 10, 5)
     if st.button("Envoyer", type="primary"):
         if question:
@@ -28,7 +28,7 @@ with tab1:
                     st.error("Erreur lors de la requête")
 
 with tab2:
-    st.subheader("Ingérer un document")
+    st.subheader("Ingérer un document PDF")
     uploaded_file = st.file_uploader("Choisir un fichier PDF", type=["pdf"])
     if uploaded_file and st.button("Ingérer", type="primary"):
         with st.spinner("Ingestion en cours..."):
