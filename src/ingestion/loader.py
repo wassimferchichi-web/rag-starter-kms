@@ -1,4 +1,4 @@
-﻿import fitz
+import fitz
 import os
 from typing import List, Dict
 
@@ -10,7 +10,14 @@ def load_pdf(file_path: str) -> List[Dict]:
     for page_num in range(len(doc)):
         page = doc[page_num]
         text = page.get_text().strip()
-        documents.append({"text": text, "metadata": {"source": os.path.basename(file_path), "page": page_num + 1, "total_pages": len(doc)}})
+        documents.append({
+            "text": text,
+            "metadata": {
+                "source": os.path.basename(file_path),
+                "page": page_num + 1,
+                "total_pages": len(doc)
+            }
+        })
     doc.close()
     return documents
 
