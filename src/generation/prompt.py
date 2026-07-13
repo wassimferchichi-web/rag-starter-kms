@@ -9,9 +9,13 @@ Cite les sources (nom du document et page) pertinentes à la fin de ta réponse.
 def build_context(results: List[Dict]) -> str:
     blocks = []
     for r in results:
-        source = r["metadata"]["source"]
-        page = r["metadata"]["page"]
-        blocks.append(f"[Source: {source}, page {page}]\n{r['text']}")
+        meta = r["metadata"]
+        source = meta["source"]
+        if "sheet" in meta and "row" in meta:
+            location = f"feuille {meta['sheet']}, ligne {meta['row']}"
+        else:
+            location = f"page {meta['page']}"
+        blocks.append(f"[Source: {source}, {location}]\n{r['text']}")
     return "\n\n---\n\n".join(blocks)
 
 def build_prompt(question: str, results: List[Dict]) -> List[Dict]:

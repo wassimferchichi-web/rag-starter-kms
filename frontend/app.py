@@ -23,7 +23,10 @@ with tab1:
                     st.write(data["answer"])
                     st.markdown("### Sources")
                     for source in data["sources"]:
-                        st.info(f"📄 {source['source']} — Page {source['page']}")
+                        if "sheet" in source and "row" in source:
+                            st.info(f"📄 {source['source']} — Feuille {source['sheet']}, ligne {source['row']}")
+                        else:
+                            st.info(f"📄 {source['source']} — Page {source['page']}")
                 else:
                     st.error("Erreur lors de la requête")
 

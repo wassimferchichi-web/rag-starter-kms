@@ -36,13 +36,21 @@ def load_xlsx(file_path: str) -> List[Dict]:
     documents = []
     for sheet in wb.sheetnames:
         ws = wb[sheet]
-        rows = []
-        for row in ws.iter_rows(values_only=True):
-            row_text = " | ".join([str(cell) for cell in row if cell is not None])
-            if row_text.strip():
-                rows.append(row_text)
-        if rows:
-            documents.append({"text": "\n".join(rows), "metadata": {"source": os.path.basename(file_path), "page": 1, "total_pages": 1, "sheet": sheet}})
+        rows = list(ws.iter_rows(values_only=True))
+        if not rows:
+            continue
+        headers = [str(h).strip() if h is not None else "" for h in rows[0]]
+        for row_num, row in enumerate(rows[1:], start=2):
+            pairs = []
+            for header, cell in zip(headers, row):
+                if cell is not None and str(cell).strip():
+                    pairs.append(f"{header}: {cell}" if header else str(cell))
+            if pairs:
+                row_text = " | ".join(pairs)
+                documents.append({
+                    "text": row_text,
+                    "metadata": {"source": os.path.basename(file_path), "page": 1, "total_pages": 1, "sheet": sheet, "row": row_num}
+                })
     return documents
 
 def load_file(file_path: str) -> List[Dict]:
