@@ -19,7 +19,16 @@ def load_pdf(file_path: str) -> List[Dict]:
 
 def load_docx(file_path: str) -> List[Dict]:
     doc = Document(file_path)
-    text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+    blocks = []
+    for p in doc.paragraphs:
+        if p.text.strip():
+            blocks.append(p.text.strip())
+    for table in doc.tables:
+        for row in table.rows:
+            cells = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+            if cells:
+                blocks.append(" | ".join(cells))
+    text = "\n".join(blocks)
     return [{"text": text, "metadata": {"source": os.path.basename(file_path), "page": 1, "total_pages": 1}}]
 
 def load_xlsx(file_path: str) -> List[Dict]:
