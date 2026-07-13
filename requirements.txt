@@ -1,8 +1,6 @@
 # RAG Core
 langchain==0.3.0
 langchain-groq==0.2.0
-langchain-chroma==0.1.4
-langchain-huggingface==0.1.0
 
 # Embedding
 sentence-transformers==3.1.1
