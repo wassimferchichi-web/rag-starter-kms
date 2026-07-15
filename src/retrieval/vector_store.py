@@ -1,5 +1,5 @@
 import chromadb
-import hashlib
+import uuid
 from typing import List, Dict
 
 client = chromadb.PersistentClient(path="data/chroma_db")
@@ -7,15 +7,10 @@ client = chromadb.PersistentClient(path="data/chroma_db")
 def get_collection(name: str = "rag_kms"):
     return client.get_or_create_collection(name=name)
 
-def _make_id(chunk: Dict) -> str:
-    meta = chunk["metadata"]
-    base = f"{meta.get('source')}_{meta.get('sheet','')}_{meta.get('row','')}_{meta.get('page')}_{meta.get('chunk_index')}_{chunk['text'][:50]}"
-    return hashlib.sha256(base.encode("utf-8")).hexdigest()[:32]
-
 def store_chunks(chunks: List[Dict], collection_name: str = "rag_kms"):
     collection = get_collection(collection_name)
     collection.add(
-        ids=[_make_id(c) for c in chunks],
+        ids=[str(uuid.uuid4()) for _ in chunks],
         embeddings=[c["embedding"] for c in chunks],
         documents=[c["text"] for c in chunks],
         metadatas=[c["metadata"] for c in chunks]

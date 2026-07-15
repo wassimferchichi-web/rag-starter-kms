@@ -69,6 +69,10 @@ def load_folder(folder_path: str) -> List[Dict]:
         for filename in files:
             if filename.endswith((".pdf", ".docx", ".xlsx")):
                 file_path = os.path.join(root, filename)
+                rel_path = os.path.relpath(file_path, folder_path).replace(os.sep, "/")
                 print(f"Chargement : {filename}")
-                all_docs.extend(load_file(file_path))
+                docs = load_file(file_path)
+                for d in docs:
+                    d["metadata"]["path"] = rel_path
+                all_docs.extend(docs)
     return all_docs
