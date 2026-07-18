@@ -15,6 +15,8 @@ def build_context(results: List[Dict]) -> str:
         source = meta["source"]
         if "sheet" in meta and "row" in meta:
             location = f"feuille {meta['sheet']}, ligne {meta['row']}"
+        elif "table" in meta and "row" in meta:
+            location = f"tableau {meta['table']}, ligne {meta['row']}"
         else:
             location = f"page {meta['page']}"
         blocks.append(f"[{i}] Source: {source}, {location}\n{r['text']}")

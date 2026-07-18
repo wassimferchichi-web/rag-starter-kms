@@ -1,0 +1,7 @@
+ragas==0.1.21
+datasets
+langchain-openai
+sentence-transformers==3.1.1
+python-dotenv==1.0.1
+requests==2.32.3
+pandas

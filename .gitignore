@@ -1,5 +1,6 @@
 .env
 venv/
+venv-eval/
 __pycache__/
 *.pyc
 *.pyo
@@ -22,3 +23,4 @@ build/
 *.egg-info/
 scripts/
 setup_files.py
+ragas_results.csv

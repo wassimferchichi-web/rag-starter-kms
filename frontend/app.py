@@ -14,6 +14,8 @@ st.caption("Système de questions-réponses intelligent — SFM Technologies")
 def source_label(meta):
     if "sheet" in meta and "row" in meta:
         return f"📄 {meta['source']} — Feuille {meta['sheet']}, ligne {meta['row']}"
+    if "table" in meta and "row" in meta:
+        return f"📄 {meta['source']} — Tableau {meta['table']}, ligne {meta['row']}"
     return f"📄 {meta['source']} — Page {meta['page']}"
 
 def run_in_thread(target, result_queue):

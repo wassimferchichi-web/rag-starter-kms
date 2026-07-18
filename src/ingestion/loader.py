@@ -19,17 +19,33 @@ def load_pdf(file_path: str) -> List[Dict]:
 
 def load_docx(file_path: str) -> List[Dict]:
     doc = Document(file_path)
-    blocks = []
-    for p in doc.paragraphs:
-        if p.text.strip():
-            blocks.append(p.text.strip())
-    for table in doc.tables:
-        for row in table.rows:
-            cells = [cell.text.strip() for cell in row.cells if cell.text.strip()]
-            if cells:
-                blocks.append(" | ".join(cells))
-    text = "\n".join(blocks)
-    return [{"text": text, "metadata": {"source": os.path.basename(file_path), "page": 1, "total_pages": 1}}]
+    documents = []
+    source = os.path.basename(file_path)
+
+    paragraph_blocks = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+    if paragraph_blocks:
+        documents.append({
+            "text": "\n".join(paragraph_blocks),
+            "metadata": {"source": source, "page": 1, "total_pages": 1}
+        })
+
+    for table_num, table in enumerate(doc.tables, start=1):
+        headers = [cell.text.strip() for cell in table.rows[0].cells] if table.rows else []
+        for row_num, row in enumerate(table.rows[1:] if len(table.rows) > 1 else table.rows, start=1):
+            cells = [cell.text.strip() for cell in row.cells]
+            pairs = []
+            for header, cell in zip(headers, cells):
+                if cell:
+                    pairs.append(f"{header}: {cell}" if header else cell)
+            if not pairs:
+                pairs = [c for c in cells if c]
+            if pairs:
+                documents.append({
+                    "text": " | ".join(pairs),
+                    "metadata": {"source": source, "page": 1, "total_pages": 1, "table": table_num, "row": row_num}
+                })
+
+    return documents
 
 def load_xlsx(file_path: str) -> List[Dict]:
     wb = openpyxl.load_workbook(file_path, data_only=True)

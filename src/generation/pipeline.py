@@ -46,7 +46,7 @@ def parse_used_sources(raw_answer: str, results: List[Dict]) -> tuple:
 
 _answer_cache = {}
 
-def generate_answer(question: str, k: int = 5, candidate_pool: int = 15, collection_name: str = "rag_kms") -> Dict:
+def generate_answer(question: str, k: int = 6, candidate_pool: int = 25, collection_name: str = "rag_kms") -> Dict:
     cache_key = (question.strip().lower(), k, collection_name)
     if cache_key in _answer_cache:
         return _answer_cache[cache_key]
