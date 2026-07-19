@@ -33,12 +33,13 @@ tab1, tab2 = st.tabs(["💬 Q&R", "🔍 Recherche documentaire"])
 with tab1:
     init_state("qr")
     st.subheader("Posez votre question")
-    question = st.text_input("Votre question", placeholder="Ex: Quel est le processus qualité ?")
     k = 8
 
-    col_send, col_cancel, col_clear = st.columns([1, 1, 1])
-    with col_send:
-        send_clicked = st.button("Envoyer", type="primary", disabled=st.session_state.qr_running)
+    with st.form(key="qr_form"):
+        question = st.text_input("Votre question", placeholder="Ex: Quel est le processus qualité ?")
+        send_clicked = st.form_submit_button("Envoyer", type="primary", disabled=st.session_state.qr_running)
+
+    col_cancel, col_clear = st.columns([1, 1])
     with col_cancel:
         cancel_clicked = st.button("Annuler", disabled=not st.session_state.qr_running)
     with col_clear:
@@ -104,11 +105,12 @@ with tab2:
     init_state("search")
     st.subheader("Recherche documentaire")
     st.caption("Recherche sémantique directe dans les documents, sans génération par IA — utile pour vérifier vite le contenu source.")
-    search_query = st.text_input("Rechercher", placeholder="Ex: audit interne, non-conformité, habilitations...")
 
-    col_send2, col_cancel2, col_clear2 = st.columns([1, 1, 1])
-    with col_send2:
-        search_clicked = st.button("Rechercher", type="primary", disabled=st.session_state.search_running)
+    with st.form(key="search_form"):
+        search_query = st.text_input("Rechercher", placeholder="Ex: audit interne, non-conformité, habilitations...")
+        search_clicked = st.form_submit_button("Rechercher", type="primary", disabled=st.session_state.search_running)
+
+    col_cancel2, col_clear2 = st.columns([1, 1])
     with col_cancel2:
         cancel_clicked2 = st.button("Annuler ", disabled=not st.session_state.search_running)
     with col_clear2:
