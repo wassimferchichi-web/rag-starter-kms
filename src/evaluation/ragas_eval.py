@@ -11,7 +11,7 @@ from ragas.metrics import faithfulness, context_precision, context_recall, Answe
 from langchain_openai import ChatOpenAI
 
 API_URL = "http://127.0.0.1:8000"
-K = 4
+K = 8
 
 TEST_SET = [
     {
@@ -80,7 +80,7 @@ def main():
     answer_relevancy = AnswerRelevancy(strictness=1)
 
     print("Évaluation RAGAS en cours...")
-    run_config = RunConfig(timeout=300, max_retries=4, max_wait=120, max_workers=2)
+    run_config = RunConfig(timeout=300, max_retries=5, max_wait=90, max_workers=1)
     result = evaluate(
         dataset,
         metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
