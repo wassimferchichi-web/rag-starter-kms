@@ -16,6 +16,7 @@ RAW_ROOT = os.path.abspath("data/raw")
 class QueryRequest(BaseModel):
     question: str
     k: int = 5
+    history: List[Dict[str, str]] = []
 
 @router.get("/health")
 def health():
@@ -39,7 +40,8 @@ def get_document(doc_path: str):
     full_path = os.path.abspath(os.path.join(RAW_ROOT, doc_path))
     if not full_path.startswith(RAW_ROOT) or not os.path.isfile(full_path):
         raise HTTPException(status_code=404, detail="Document introuvable")
-    return FileResponse(full_path, filename=os.path.basename(full_path))
+    filename = os.path.basename(full_path)
+    return FileResponse(full_path, filename=filename, content_disposition_type="inline")
 
 @router.get("/search")
 def search_endpoint(q: str, k: int = 10):
@@ -48,4 +50,4 @@ def search_endpoint(q: str, k: int = 10):
 
 @router.post("/query")
 def query(request: QueryRequest):
-    return generate_answer(request.question, k=request.k)
+    return generate_answer(request.question, history=request.history, k=request.k)

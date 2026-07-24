@@ -19,7 +19,7 @@ python-dotenv==1.0.1
 python-multipart==0.0.12
 
 # UI
-streamlit==1.38.0
+streamlit==1.41.1
 
 # Evaluation
 # Evaluation : voir requirements-eval.txt (environnement virtuel séparé, conflit de version avec langchain==0.3.0)

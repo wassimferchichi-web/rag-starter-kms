@@ -23,9 +23,27 @@ def build_context(results: List[Dict]) -> str:
         blocks.append(f"[{i}] Source: {source}, {location}\n{r['text']}")
     return "\n\n---\n\n".join(blocks)
 
-def build_prompt(question: str, results: List[Dict]) -> List[Dict]:
+def build_condense_messages(question: str, history: List[Dict]) -> List[Dict]:
+    history_text = "\n".join([f"{'Utilisateur' if h['role'] == 'user' else 'Assistant'} : {h['content']}" for h in history])
+    prompt = f"""Historique de la conversation :
+
+{history_text}
+
+Nouvelle question de l'utilisateur : {question}
+
+Reformule cette nouvelle question sous une forme autonome, compréhensible sans l'historique, en conservant exactement son sens. Ne réponds pas à la question. Donne uniquement la question reformulée, sans aucun texte supplémentaire."""
+    return [
+        {"role": "system", "content": "Tu reformules des questions de suivi en questions autonomes. Tu ne réponds jamais à la question, tu la reformules seulement."},
+        {"role": "user", "content": prompt}
+    ]
+
+def build_prompt(question: str, results: List[Dict], history: List[Dict] = None) -> List[Dict]:
     context = build_context(results)
-    user_prompt = f"""Contexte documentaire :
+    history_block = ""
+    if history:
+        history_text = "\n".join([f"{'Utilisateur' if h['role'] == 'user' else 'Assistant'} : {h['content']}" for h in history])
+        history_block = f"Historique de la conversation :\n{history_text}\n\n"
+    user_prompt = f"""{history_block}Contexte documentaire :
 
 {context}
 

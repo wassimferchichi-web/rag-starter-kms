@@ -6,7 +6,7 @@ from typing import List, Dict
 from src.embedding.embedder import embed_query
 from src.retrieval.vector_store import search
 from src.retrieval.reranker import rerank
-from src.generation.prompt import build_prompt
+from src.generation.prompt import build_prompt, build_condense_messages
 
 _llm = None
 
@@ -44,16 +44,30 @@ def parse_used_sources(raw_answer: str, results: List[Dict]) -> tuple:
 
     return clean_answer, used_sources
 
+def condense_question(question: str, history: List[Dict]) -> str:
+    messages = build_condense_messages(question, history)
+    llm = get_llm()
+    response = llm.invoke([
+        SystemMessage(content=messages[0]["content"]),
+        HumanMessage(content=messages[1]["content"])
+    ])
+    return response.content.strip()
+
 _answer_cache = {}
 
-def generate_answer(question: str, k: int = 8, candidate_pool: int = 35, collection_name: str = "rag_kms") -> Dict:
-    cache_key = (question.strip().lower(), k, collection_name)
-    if cache_key in _answer_cache:
-        return _answer_cache[cache_key]
+def generate_answer(question: str, history: List[Dict] = None, k: int = 8, candidate_pool: int = 35, collection_name: str = "rag_kms") -> Dict:
+    history = history or []
 
-    query_vec = embed_query(question)
+    if not history:
+        cache_key = (question.strip().lower(), k, collection_name)
+        if cache_key in _answer_cache:
+            return _answer_cache[cache_key]
+
+    standalone_question = condense_question(question, history) if history else question
+
+    query_vec = embed_query(standalone_question)
     candidates = search(query_vec, k=candidate_pool, collection_name=collection_name)
-    results = rerank(question, candidates, top_k=k)
+    results = rerank(standalone_question, candidates, top_k=k)
 
     if not results:
         return {
@@ -61,7 +75,7 @@ def generate_answer(question: str, k: int = 8, candidate_pool: int = 35, collect
             "sources": []
         }
 
-    messages = build_prompt(question, results)
+    messages = build_prompt(question, results, history=history)
     langchain_messages = [
         SystemMessage(content=messages[0]["content"]),
         HumanMessage(content=messages[1]["content"])
@@ -76,5 +90,7 @@ def generate_answer(question: str, k: int = 8, candidate_pool: int = 35, collect
         "answer": clean_answer,
         "sources": used_sources
     }
-    _answer_cache[cache_key] = result
+    if not history:
+        cache_key = (question.strip().lower(), k, collection_name)
+        _answer_cache[cache_key] = result
     return result
