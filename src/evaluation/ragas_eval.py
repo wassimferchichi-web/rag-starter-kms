@@ -72,7 +72,7 @@ def main():
     evaluator_llm = LangchainLLMWrapper(ChatOpenAI(
         base_url="https://api.groq.com/openai/v1",
         api_key=os.getenv("GROQ_API_KEY"),
-        model=os.getenv("LLM_MODEL", "llama-3.3-70b-versatile"),
+        model=os.getenv("LLM_MODEL", "openai/gpt-oss-120b"),
         temperature=0
     ))
     evaluator_embeddings = HuggingfaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")

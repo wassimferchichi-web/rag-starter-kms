@@ -4,6 +4,11 @@ from typing import List, Dict
 from docx import Document
 import openpyxl
 
+def clean_title(file_path: str) -> str:
+    name = os.path.splitext(os.path.basename(file_path))[0]
+    name = name.replace("_", " ")
+    return " ".join(name.split())
+
 def load_pdf(file_path: str) -> List[Dict]:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Fichier introuvable : {file_path}")
@@ -21,6 +26,7 @@ def load_docx(file_path: str) -> List[Dict]:
     doc = Document(file_path)
     documents = []
     source = os.path.basename(file_path)
+    title = clean_title(file_path)
 
     paragraph_blocks = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
     if paragraph_blocks:
@@ -41,7 +47,7 @@ def load_docx(file_path: str) -> List[Dict]:
                 pairs = [c for c in cells if c]
             if pairs:
                 documents.append({
-                    "text": " | ".join(pairs),
+                    "text": f"{title} — " + " | ".join(pairs),
                     "metadata": {"source": source, "page": 1, "total_pages": 1, "table": table_num, "row": row_num}
                 })
 
@@ -50,6 +56,7 @@ def load_docx(file_path: str) -> List[Dict]:
 def load_xlsx(file_path: str) -> List[Dict]:
     wb = openpyxl.load_workbook(file_path, data_only=True)
     documents = []
+    title = clean_title(file_path)
     for sheet in wb.sheetnames:
         ws = wb[sheet]
         rows = list(ws.iter_rows(values_only=True))
@@ -62,7 +69,7 @@ def load_xlsx(file_path: str) -> List[Dict]:
                 if cell is not None and str(cell).strip():
                     pairs.append(f"{header}: {cell}" if header else str(cell))
             if pairs:
-                row_text = " | ".join(pairs)
+                row_text = f"{title} ({sheet}) — " + " | ".join(pairs)
                 documents.append({
                     "text": row_text,
                     "metadata": {"source": os.path.basename(file_path), "page": 1, "total_pages": 1, "sheet": sheet, "row": row_num}
