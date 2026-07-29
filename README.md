@@ -166,6 +166,17 @@ Le script interroge l'API en conditions réelles (HTTP), calcule les métriques 
 | Context Precision | Les passages récupérés sont-ils pertinents ? |
 | Context Recall | L'information nécessaire a-t-elle bien été retrouvée ? |
 
+**Derniers résultats (run complet, 6 questions, modèle `openai/gpt-oss-120b`) :**
+
+| Métrique | Score |
+|---|---|
+| Faithfulness | 1.00 |
+| Answer Relevancy | 0.88 |
+| Context Precision | 0.65 |
+| Context Recall | 0.83 |
+
+Détail : faithfulness parfaite sur les 6 questions testées (aucune invention détectée). Context recall parfait sur 5 questions sur 6 ; le cas restant concerne une référence de version noyée dans une ligne de tableau générique ("Version | Date | Rédigé par...") sans repère textuel distinctif, un cas limite connu du chunking par ligne.
+
 **Limite connue** : le tier gratuit de Groq impose un quota journalier de tokens qui peut être atteint lors d'évaluations répétées dans la même journée (le script fait plusieurs appels LLM par question). En cas d'erreur `rate_limit_exceeded`, attendre le renouvellement du quota avant de relancer.
 
 ---

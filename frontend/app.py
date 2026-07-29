@@ -88,7 +88,7 @@ with tab1:
 
         with st.spinner("Recherche en cours..."):
             try:
-                r = requests.post(f"{API_URL}/query", json={"question": user_input, "k": 8, "history": history}, timeout=120)
+                r = requests.post(f"{API_URL}/query", json={"question": user_input, "k": 5, "history": history}, timeout=120)
                 if r.status_code == 200:
                     data = r.json()
                     answer, sources = data["answer"], data["sources"]

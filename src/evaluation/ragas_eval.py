@@ -11,7 +11,7 @@ from ragas.metrics import faithfulness, context_precision, context_recall, Answe
 from langchain_openai import ChatOpenAI
 
 API_URL = "http://127.0.0.1:8000"
-K = 8
+K = 5
 
 TEST_SET = [
     {

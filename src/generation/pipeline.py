@@ -55,7 +55,7 @@ def condense_question(question: str, history: List[Dict]) -> str:
 
 _answer_cache = {}
 
-def generate_answer(question: str, history: List[Dict] = None, k: int = 8, candidate_pool: int = 35, collection_name: str = "rag_kms") -> Dict:
+def generate_answer(question: str, history: List[Dict] = None, k: int = 5, candidate_pool: int = 35, collection_name: str = "rag_kms") -> Dict:
     history = history or []
 
     if not history:
