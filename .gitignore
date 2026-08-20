@@ -24,3 +24,5 @@ build/
 scripts/
 setup_files.py
 ragas_results.csv
+rag-frontend/node_modules/
+rag-frontend/dist/

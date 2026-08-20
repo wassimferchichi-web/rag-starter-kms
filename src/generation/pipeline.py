@@ -4,7 +4,7 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage
 from typing import List, Dict
 from src.embedding.embedder import embed_query
-from src.retrieval.vector_store import search
+from src.retrieval.hybrid_search import hybrid_search
 from src.retrieval.reranker import rerank
 from src.generation.prompt import build_prompt, build_condense_messages
 
@@ -21,10 +21,33 @@ def get_llm() -> ChatGroq:
         _llm = ChatGroq(model=model, temperature=temperature, api_key=api_key)
     return _llm
 
+def _source_key(meta: Dict) -> tuple:
+    """Clé d'identité d'une source pour la déduplication : deux chunks qui
+    pointent vers le même emplacement physique (même fichier, même page/
+    tableau+ligne/feuille+ligne) sont la même source aux yeux de l'utilisateur,
+    même s'ils ont des chunk_index ou des uuid ChromaDB différents."""
+    return (
+        meta.get("source"),
+        meta.get("page"),
+        meta.get("table"),
+        meta.get("row"),
+        meta.get("sheet"),
+    )
+
+def _dedupe_sources(metadatas: List[Dict]) -> List[Dict]:
+    seen = set()
+    deduped = []
+    for meta in metadatas:
+        key = _source_key(meta)
+        if key not in seen:
+            seen.add(key)
+            deduped.append(meta)
+    return deduped
+
 def parse_used_sources(raw_answer: str, results: List[Dict]) -> tuple:
     match = re.search(r"SOURCES_UTILISEES:\s*(.+)\s*$", raw_answer, re.IGNORECASE)
     if not match:
-        return raw_answer.strip(), [r["metadata"] for r in results]
+        return raw_answer.strip(), _dedupe_sources([r["metadata"] for r in results])
 
     clean_answer = raw_answer[:match.start()].strip()
     used_part = match.group(1).strip().lower()
@@ -40,9 +63,9 @@ def parse_used_sources(raw_answer: str, results: List[Dict]) -> tuple:
             used_sources.append(results[idx]["metadata"])
 
     if not used_sources:
-        return clean_answer, [r["metadata"] for r in results]
+        return clean_answer, _dedupe_sources([r["metadata"] for r in results])
 
-    return clean_answer, used_sources
+    return clean_answer, _dedupe_sources(used_sources)
 
 def condense_question(question: str, history: List[Dict]) -> str:
     messages = build_condense_messages(question, history)
@@ -66,7 +89,7 @@ def generate_answer(question: str, history: List[Dict] = None, k: int = 5, candi
     standalone_question = condense_question(question, history) if history else question
 
     query_vec = embed_query(standalone_question)
-    candidates = search(query_vec, k=candidate_pool, collection_name=collection_name)
+    candidates = hybrid_search(standalone_question, query_vec, candidate_pool=candidate_pool, collection_name=collection_name)
     results = rerank(standalone_question, candidates, top_k=k)
 
     if not results:
